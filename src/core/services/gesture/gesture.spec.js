@@ -6,29 +6,33 @@ describe('$mdGesture', function() {
 
   describe('custom gesture', function() {
 
-    var startSpy1, moveSpy1, endSpy1;
-    var startSpy2, moveSpy2, endSpy2;
+    var startSpy1, moveSpy1, endSpy1, cancelSpy1;
+    var startSpy2, moveSpy2, endSpy2, cancelSpy2;
     var childEl, middleEl, parentEl;
     beforeEach(function() {
       inject(function($mdGesture) {
         startSpy1 = jasmine.createSpy('start1');
         moveSpy1 = jasmine.createSpy('move1');
         endSpy1 = jasmine.createSpy('end1');
+        cancelSpy1 = jasmine.createSpy('cancel1');
         startSpy2 = jasmine.createSpy('start2');
         moveSpy2 = jasmine.createSpy('move2');
         endSpy2 = jasmine.createSpy('end2');
+        cancelSpy2 = jasmine.createSpy('cancel2');
         $mdGesture.handler('gesture1', {
           options: {
             defaultKey: 'defaultVal'
           },
           onStart: startSpy1,
           onMove: moveSpy1,
-          onEnd: endSpy1
+          onEnd: endSpy1,
+          onCancel: cancelSpy1
         });
         $mdGesture.handler('gesture2', {
           onStart: startSpy2,
           onMove: moveSpy2,
-          onEnd: endSpy2
+          onEnd: endSpy2,
+          onCancel: cancelSpy2
         });
         childEl = angular.element('<child>');
         middleEl = angular.element('<middle>').append(childEl);
@@ -80,7 +84,7 @@ describe('$mdGesture', function() {
       $document.triggerHandler('touchmove');
       expect(moveSpy1).toHaveBeenCalled();
       $document.triggerHandler('touchcancel');
-      expect(endSpy1).toHaveBeenCalled();
+      expect(cancelSpy1).toHaveBeenCalled();
     }));
 
     it('gesture{down,move,up,cancel}', inject(function($document) {
@@ -106,7 +110,7 @@ describe('$mdGesture', function() {
       $document.triggerHandler('pointermove');
       expect(moveSpy1).toHaveBeenCalled();
       $document.triggerHandler('pointercancel');
-      expect(endSpy1).toHaveBeenCalled();
+      expect(cancelSpy1).toHaveBeenCalled();
     }));
 
     it('mouse{down,move,up,leave}', inject(function($document) {
