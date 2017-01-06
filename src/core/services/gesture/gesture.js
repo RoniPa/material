@@ -569,12 +569,14 @@ function attachToDocument( $mdGesture, $$MdGestureHandler ) {
   // Listen to all events to cover all platforms.
   var START_EVENTS = 'mousedown touchstart pointerdown';
   var MOVE_EVENTS = 'mousemove touchmove pointermove';
-  var END_EVENTS = 'mouseup mouseleave touchend touchcancel pointerup pointercancel';
+  var END_EVENTS = 'mouseup mouseleave touchend pointerup';
+  var CANCEL_EVENTS = 'touchcancel pointercancel';
 
   angular.element(document)
     .on(START_EVENTS, gestureStart)
     .on(MOVE_EVENTS, gestureMove)
     .on(END_EVENTS, gestureEnd)
+    .on(CANCEL_EVENTS, gestureCancel)
     // For testing
     .on('$$mdGestureReset', function gestureClearCache () {
       lastPointer = pointer = null;
@@ -644,6 +646,20 @@ function attachToDocument( $mdGesture, $$MdGestureHandler ) {
     pointer.endTime = +Date.now();
 
     runHandlers('end', ev);
+
+    lastPointer = pointer;
+    pointer = null;
+  }
+  /*
+   * If an end event happens of the right type, update the pointer, run cancelHandlers, and save the pointer as 'lastPointer'
+   */
+  function gestureCancel(ev) {
+    if (!pointer || !typesMatch(ev, pointer)) return;
+
+    updatePointerState(ev, pointer);
+    pointer.endTime = +Date.now();
+
+    runHandlers('cancel', ev);
 
     lastPointer = pointer;
     pointer = null;
